@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  firstName     String
+  lastName      String
+  role          UserRole  @default(RECRUITER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  jobOrders     JobOrder[]
+  submittals    Submittal[]
+  candidates    Candidate[]
+  clients       Client[]
+}
+
+model JobOrder {
+  id            String         @id @default(uuid())
+  title         String
+  description   String
+  requirements  String[]
+  status        JobOrderStatus @default(OPEN)
+  clientId      String
+  client        User           @relation(fields: [clientId], references: [id])
+  submittals    Submittal[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Submittal {
+  id            String    @id @default(uuid())
+  status        SubmittalStatus @default(PENDING)
+  jobOrderId    String
+  jobOrder      JobOrder  @relation(fields: [jobOrderId], references: [id])
+  candidateId   String
+  candidate     User      @relation(fields: [candidateId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Candidate {
+  id            String    @id @default(uuid())
+  firstName     String
+  lastName      String
+  email         String    @unique
+  phone         String?
+  resumeUrl     String?
+  recruiterId   String
+  recruiter     User      @relation(fields: [recruiterId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Client {
+  id            String    @id @default(uuid())
+  companyName   String
+  contactName   String
+  email         String    @unique
+  phone         String?
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum UserRole {
+  RECRUITER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum JobOrderStatus {
+  OPEN
+  CLOSED
+  ON_HOLD
+}
+
+enum SubmittalStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  INTERVIEWING
+  OFFERED
+  HIRED
+} 
