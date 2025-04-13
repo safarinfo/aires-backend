@@ -6,13 +6,13 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Enable validation
+  app.useGlobalPipes(new ValidationPipe());
+
   // Enable CORS
   app.enableCors();
 
-  // Global validation pipe
-  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-
-  // Swagger configuration
+  // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Aires Staffing API')
     .setDescription('The Aires Staffing API documentation')
